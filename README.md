@@ -3,6 +3,7 @@
 1.#import "GLTitleView.h"
 
 2.加载视图
+
     GLTitleView *titleView = [[GLTitleView alloc] initWithTitleArray:@[@"啊丫丫", @"啊丫丫", @"啊丫丫", @"啊丫丫",] titleHeight:39];
     titleView.sepLineColor = [UIColor lightGrayColor];
     titleView.delegate     = self;
