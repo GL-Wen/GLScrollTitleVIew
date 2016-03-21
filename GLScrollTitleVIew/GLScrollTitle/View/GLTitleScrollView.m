@@ -129,6 +129,10 @@
             previousView = btn;
         }
         
+        [self.bottomLine mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.width.equalTo(previousView);
+        }];
+        
         width = self.superview.superview.frame.size.width;
     }
     
