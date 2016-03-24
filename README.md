@@ -17,7 +17,7 @@
     #pragma mark - GLTitleViewDelegate
 
     - (id)titleView:(GLTitleView *)titleView cellContentForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    id content = nil;//view或者ViewController
-    return content;
-}
+    {
+        id content = nil;//view或者ViewController
+        return content;
+    }
