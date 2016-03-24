@@ -20,6 +20,8 @@ typedef void(^titleButtonTapIndexBlcok)(NSUInteger index);
 
 @property (nonatomic, strong) UIView *bottomLine;//底部分割线
 
+@property (nonatomic, strong) UIView *titleBottomLine;//
+
 @property (nonatomic, copy) titleButtonTapIndexBlcok tapBlock;
 
 @property (nonatomic, assign) NSUInteger updateIndex;

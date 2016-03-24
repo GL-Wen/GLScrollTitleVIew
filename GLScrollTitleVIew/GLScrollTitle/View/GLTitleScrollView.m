@@ -23,18 +23,17 @@
 {
     if (self = [super init]) {
         
+        if (!titleArray.count)
+            return nil;
+        
         self.showsVerticalScrollIndicator   = NO;
         self.showsHorizontalScrollIndicator = NO;
-        
-//        UIEdgeInsets insets = self.contentInset;
-//        insets.left  += 10;
-//        insets.right += 10;
-//        self.contentInset = insets;
                 
         self.scrollTitleArray = titleArray;
         [self updateTitles];
         
         [self addSubview:self.titleScrollContentView];
+        [self.titleScrollContentView addSubview:self.titleBottomLine];
         [self.titleScrollContentView addSubview:self.bottomLine];
         
         [self.titleScrollContentView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -44,10 +43,16 @@
         
         GLButton *button = self.titleButtonArray[0];
         [self.bottomLine mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.bottom.equalTo(self.titleScrollContentView.mas_bottom).with.offset(0);
+            make.bottom.equalTo(self.titleScrollContentView.mas_bottom);
             make.height.equalTo(@2);
             make.width.equalTo(@(button.intrinsicContentSize.width));
             make.centerX.equalTo(button);
+        }];
+        
+        [self.titleBottomLine mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.height.equalTo(@1);
+            make.bottom.equalTo(self.titleScrollContentView.mas_bottom);
+            make.left.right.equalTo(self.titleScrollContentView);
         }];
     }
     return self;
@@ -101,10 +106,8 @@
         width += btn.intrinsicContentSize.width;
     }
     
-    width += self.rightMargin;
-    
     //如果titles的总宽度小于父视图的宽度，那么等分title视图的宽度
-    if (width < self.superview.superview.frame.size.width) {
+    if (width < self.superview.superview.frame.size.width - self.rightMargin) {
         
         UIView *previousView = nil;
         NSInteger count = self.titleButtonArray.count;
@@ -133,7 +136,7 @@
             make.width.equalTo(previousView);
         }];
         
-        width = self.superview.superview.frame.size.width;
+        width = self.superview.superview.frame.size.width - self.rightMargin;
     }
     
     CGSize contentSize = self.contentSize;
@@ -233,6 +236,14 @@
         _bottomLine.backgroundColor = [UIColor redColor];
     }
     return _bottomLine;
+}
+
+- (UIView *)titleBottomLine
+{
+    if (!_titleBottomLine) {
+        _titleBottomLine = [UIView new];
+    }
+    return _titleBottomLine;
 }
 
 @end

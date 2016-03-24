@@ -16,21 +16,9 @@
 GLTitleViewDelegate
 >
 
-@property (nonatomic, strong) NSMutableArray *contentsArray;
-
 @end
 
 @implementation ViewController
-
-#pragma mark - Get
-
-- (NSMutableArray *)contentsArray
-{
-    if (!_contentsArray) {
-        _contentsArray = [NSMutableArray array];
-    }
-    return _contentsArray;
-}
 
 #pragma mark - Super
 
@@ -40,9 +28,14 @@ GLTitleViewDelegate
     
     self.edgesForExtendedLayout = UIRectEdgeNone;
     
+    UIButton *rightTopBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [rightTopBtn setBackgroundColor:[UIColor yellowColor]];
+    [rightTopBtn setFrame:CGRectMake(0, 0, 35, 35)];
+    
     GLTitleView *titleView = [[GLTitleView alloc] initWithTitleArray:@[@"菜单1", @"菜单2"] titleHeight:39];
     titleView.sepLineColor = [UIColor lightGrayColor];
     titleView.delegate     = self;
+    titleView.customView = rightTopBtn;
     [self.view addSubview:titleView];
     
     [titleView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -57,13 +50,13 @@ GLTitleViewDelegate
 
 #pragma mark - GLTitleViewDelegate
 
-- (UIView *)titleView:(GLTitleView *)titleView cellContentViewForItemAtIndexPath:(NSIndexPath *)indexPath
+- (id)titleView:(GLTitleView *)titleView cellContentForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    UIView *contentView = [UIView new];
+    id content = nil;
     switch (indexPath.row) {
         case 0:
         {
-            contentView = [GLScrollView new];
+            content = [GLScrollView new];
         }
             break;
             
@@ -71,9 +64,8 @@ GLTitleViewDelegate
         {
             UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
             GLListTableViewController *vc = [storyBoard instantiateViewControllerWithIdentifier:@"listVc"];
-            contentView = vc.tableView;
             
-            [self.contentsArray addObject:vc];
+            content = vc;
         }
             break;
             
@@ -81,7 +73,12 @@ GLTitleViewDelegate
             break;
     }
     
-    return contentView;
+    return content;
+}
+
+- (void)titleView:(GLTitleView *)titleView scrollToContent:(id)content indexPath:(NSIndexPath *)indexPath
+{
+    NSLog(@"====content -->%@,\nindexPath -->%@",content,indexPath);
 }
 
 @end

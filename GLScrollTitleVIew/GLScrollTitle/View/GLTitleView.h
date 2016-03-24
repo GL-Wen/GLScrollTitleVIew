@@ -12,7 +12,11 @@
 @protocol GLTitleViewDelegate <NSObject>
 @optional
 
-- (UIView *)titleView:(GLTitleView *)titleView cellContentViewForItemAtIndexPath:(NSIndexPath *)indexPath;
+//兼容返回viewController
+- (id)titleView:(GLTitleView *)titleView cellContentForItemAtIndexPath:(NSIndexPath *)indexPath;
+
+//当前滚动视图
+- (void)titleView:(GLTitleView *)titleView scrollToContent:(id)content indexPath:(NSIndexPath *)indexPath;
 
 @end
 
@@ -30,14 +34,23 @@
 //标题高亮状态颜色
 @property (nonatomic, strong) UIColor *titleHightColor;
 
+//菜单底部视图横线（默认透明，显示需要设置背景色）
+@property (nonatomic, strong) UIColor *titleBottomLineColor;
+
 //用户自定义view
 @property (nonatomic, strong) UIView *customView;
 
 //标题大小
 @property (nonatomic, strong) UIFont *titleFont;
 
+//标题容器
+@property (nonatomic, strong) NSArray *titleArray;
+
 //当前索引值
 @property (nonatomic, assign) NSUInteger currentIndex;
+
+//是否自动切换标题（滚动子视图的时候），默认开启
+@property (nonatomic, assign) BOOL isAutoSwitchTitle;
 
 @property (nonatomic, weak) id<GLTitleViewDelegate> delegate;
 
@@ -51,7 +64,7 @@
  *
  *  @return titleView视图对象
  *
- *  @since <#1.0#>
+ *  @since 1.0
  */
 - (instancetype)initWithTitleArray:(NSArray *)titleArray titleHeight:(CGFloat)height;
 
