@@ -28,14 +28,9 @@ GLTitleViewDelegate
     
     self.edgesForExtendedLayout = UIRectEdgeNone;
     
-    UIButton *rightTopBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    [rightTopBtn setBackgroundColor:[UIColor yellowColor]];
-    [rightTopBtn setFrame:CGRectMake(0, 0, 35, 35)];
-    
     GLTitleView *titleView = [[GLTitleView alloc] initWithTitleArray:@[@"菜单1", @"菜单2"] titleHeight:39];
     titleView.sepLineColor = [UIColor lightGrayColor];
     titleView.delegate     = self;
-    titleView.customView = rightTopBtn;
     [self.view addSubview:titleView];
     
     [titleView mas_makeConstraints:^(MASConstraintMaker *make) {
