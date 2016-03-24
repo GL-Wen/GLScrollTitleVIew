@@ -16,8 +16,8 @@
 3.实现contentView代理协议
     #pragma mark - GLTitleViewDelegate
 
-    - (UIView *)titleView:(GLTitleView *)titleView cellContentViewForItemAtIndexPath:(NSIndexPath *)indexPath
-    {
-        UIView *contentView = [UIView new];
-        return contentView;
-    }
+    - (id)titleView:(GLTitleView *)titleView cellContentForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    id content = nil;//view或者ViewController
+    return content;
+}
