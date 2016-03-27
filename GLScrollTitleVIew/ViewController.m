@@ -73,7 +73,7 @@ GLTitleViewDelegate
 
 - (void)titleView:(GLTitleView *)titleView scrollToContent:(id)content indexPath:(NSIndexPath *)indexPath
 {
-    NSLog(@"====content -->%@,\nindexPath -->%@",content,indexPath);
+//    NSLog(@"====content -->%@,\nindexPath -->%@",content,indexPath);
 }
 
 @end

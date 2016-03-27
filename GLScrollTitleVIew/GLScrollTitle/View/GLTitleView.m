@@ -57,6 +57,7 @@ UIScrollViewDelegate
 - (void)layoutSubviews
 {
     [self updateItemSize];
+    [super layoutSubviews];
 }
 
 - (void)updateConstraints

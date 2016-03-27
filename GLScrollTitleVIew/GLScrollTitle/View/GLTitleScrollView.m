@@ -28,7 +28,7 @@
         
         self.showsVerticalScrollIndicator   = NO;
         self.showsHorizontalScrollIndicator = NO;
-                
+        
         self.scrollTitleArray = titleArray;
         [self updateTitles];
         
@@ -36,23 +36,24 @@
         [self.titleScrollContentView addSubview:self.titleBottomLine];
         [self.titleScrollContentView addSubview:self.bottomLine];
         
-        [self.titleScrollContentView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.height.equalTo(self.mas_height);
-            make.top.left.right.equalTo(self);
+        __weak typeof(self) weakSelf = self;
+        
+        [weakSelf.titleScrollContentView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.height.equalTo(weakSelf);
+            make.top.left.right.equalTo(weakSelf);
         }];
         
         GLButton *button = self.titleButtonArray[0];
-        [self.bottomLine mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.bottom.equalTo(self.titleScrollContentView.mas_bottom);
-            make.height.equalTo(@2);
-            make.width.equalTo(@(button.intrinsicContentSize.width));
+        [weakSelf.bottomLine mas_makeConstraints:^(MASConstraintMaker *make) {
             make.centerX.equalTo(button);
+            make.bottom.equalTo(weakSelf.titleScrollContentView.mas_bottom);
+            make.size.mas_equalTo(CGSizeMake(button.intrinsicContentSize.width, 2));
         }];
         
-        [self.titleBottomLine mas_makeConstraints:^(MASConstraintMaker *make) {
+        [weakSelf.titleBottomLine mas_makeConstraints:^(MASConstraintMaker *make) {
             make.height.equalTo(@1);
-            make.bottom.equalTo(self.titleScrollContentView.mas_bottom);
-            make.left.right.equalTo(self.titleScrollContentView);
+            make.bottom.equalTo(weakSelf.titleScrollContentView.mas_bottom);
+            make.left.right.equalTo(weakSelf.titleScrollContentView);
         }];
     }
     return self;
@@ -97,6 +98,11 @@
         
         previousView = button;
     }
+    
+    previousView = [self.titleButtonArray lastObject];
+    [previousView mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(self.titleScrollContentView.mas_right);
+    }];
 }
 
 - (void)updateTitleScrollContentViewLayout
@@ -106,46 +112,35 @@
         width += btn.intrinsicContentSize.width;
     }
     
+    UIView *previousView = [self.titleButtonArray lastObject];
+    
     //如果titles的总宽度小于父视图的宽度，那么等分title视图的宽度
     if (width < self.superview.superview.frame.size.width - self.rightMargin) {
         
-        UIView *previousView = nil;
-        NSInteger count = self.titleButtonArray.count;
+        width = self.superview.superview.frame.size.width - self.rightMargin;
+        
+        CGSize size      = CGSizeZero;
+        CGFloat sepWidth = width / (CGFloat)self.titleButtonArray.count;
+        
+        __weak typeof(self) weakSelf = self;
         for (UIButton *btn in self.titleButtonArray) {
             
-            if (previousView) {
-                [btn mas_remakeConstraints:^(MASConstraintMaker *make) {
-                    make.left.equalTo(previousView.mas_right).with.offset(0);
-                    make.centerY.equalTo(self.titleScrollContentView.mas_centerY);
-                    make.width.equalTo(previousView.mas_width);
-                }];
-            }
-            else
-            {
-                [btn mas_remakeConstraints:^(MASConstraintMaker *make) {
-                    make.left.equalTo(self.titleScrollContentView.mas_left).with.offset(0);
-                    make.centerY.equalTo(self.titleScrollContentView.mas_centerY);
-                    make.width.equalTo(self.titleScrollContentView.mas_width).multipliedBy(1 / (CGFloat)count);
-                }];
-            }
+            size       = btn.intrinsicContentSize;
+            size.width = sepWidth;
+            
+            [btn mas_updateConstraints:^(MASConstraintMaker *make) {
+                make.size.mas_equalTo(size);
+            }];
             
             previousView = btn;
         }
         
-        [self.bottomLine mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.width.equalTo(previousView);
-        }];
+        previousView = self.titleButtonArray[0];
         
-        width = self.superview.superview.frame.size.width - self.rightMargin;
+        [weakSelf.bottomLine mas_updateConstraints:^(MASConstraintMaker *make) {
+            make.size.mas_equalTo(CGSizeMake(sepWidth, 2));
+        }];
     }
-    
-    CGSize contentSize = self.contentSize;
-    contentSize.width = width;
-    self.contentSize = contentSize;
-    
-    [self.titleScrollContentView mas_updateConstraints:^(MASConstraintMaker *make) {
-        make.width.equalTo(@(width));
-    }];
 }
 
 - (void)updateTitleIndex
@@ -180,8 +175,8 @@
     }];
     
     [self.bottomLine mas_remakeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(button.mas_centerX);
         make.width.equalTo(button);
+        make.centerX.equalTo(button);
         make.bottom.equalTo(self.titleScrollContentView.mas_bottom);
         make.height.equalTo(@2);
     }];
