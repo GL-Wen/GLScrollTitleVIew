@@ -13,41 +13,33 @@
 
 @property (nonatomic, strong) UIView         *titleScrollContentView;
 
+@property (nonatomic, assign) NSInteger currentIndex;
+
 @end
 
 @implementation GLTitleScrollView
 
 #pragma mark - Super
 
-- (instancetype)initWithTitleArray:(NSArray *)titleArray
+- (instancetype)initWithFrame:(CGRect)frame
 {
-    if (self = [super init]) {
-        
-        if (!titleArray.count)
-            return nil;
+    if (self = [super initWithFrame:frame]) {
         
         self.showsVerticalScrollIndicator   = NO;
         self.showsHorizontalScrollIndicator = NO;
         
-        self.scrollTitleArray = titleArray;
-        [self updateTitles];
+        self.titleNormalColor = [UIColor grayColor];
+        self.titleHightColor  = [UIColor redColor];
+        self.titleFont        = [UIFont systemFontOfSize:15];
         
         [self addSubview:self.titleScrollContentView];
         [self.titleScrollContentView addSubview:self.titleBottomLine];
         [self.titleScrollContentView addSubview:self.bottomLine];
         
         __weak typeof(self) weakSelf = self;
-        
         [weakSelf.titleScrollContentView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.edges.equalTo(weakSelf).insets(UIEdgeInsetsZero);
             make.height.equalTo(weakSelf);
-            make.top.left.right.equalTo(weakSelf);
-        }];
-        
-        GLButton *button = self.titleButtonArray[0];
-        [weakSelf.bottomLine mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.centerX.equalTo(button);
-            make.bottom.equalTo(weakSelf.titleScrollContentView.mas_bottom);
-            make.size.mas_equalTo(CGSizeMake(button.intrinsicContentSize.width, 2));
         }];
         
         [weakSelf.titleBottomLine mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -59,16 +51,19 @@
     return self;
 }
 
-- (void)updateConstraints
+- (void)layoutSubviews
 {
     [self updateTitleScrollContentViewLayout];
-    [super updateConstraints];
+    [super layoutSubviews];
 }
 
 #pragma mark - Self
 
 - (void)updateTitles
 {
+    [self.titleButtonArray makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [self.titleButtonArray removeAllObjects];
+    
     UIView *previousView = nil;
     
     NSInteger count = self.scrollTitleArray.count;
@@ -78,11 +73,20 @@
         GLButton *button = [GLButton buttonWithType:UIButtonTypeCustom];
         [button setTitle:title forState:UIControlStateNormal];
         [button addTarget:self action:@selector(buttonOnClick:) forControlEvents:UIControlEventTouchUpInside];
+        
+        button.titleNormalColor = self.titleNormalColor;
+        button.titleHightColor  = self.titleHightColor;
+        button.titleLabel.font  = self.titleFont;
         [self.titleScrollContentView addSubview:button];
         
         [self.titleButtonArray addObject:button];
         
         if (previousView) {
+            
+            [previousView mas_updateConstraints:^(MASConstraintMaker *make) {
+                make.right.equalTo(button.mas_left).offset(0);
+            }];
+            
             [button mas_makeConstraints:^(MASConstraintMaker *make) {
                 make.centerY.equalTo(self.titleScrollContentView);
                 make.left.equalTo(previousView.mas_right).with.offset(0);
@@ -97,59 +101,75 @@
         }
         
         previousView = button;
+        
+        button.isHight                 = 0 == i;
+        
+        if (i == count - 1)
+            continue;
+        
+        button.sepLine.backgroundColor = self.sepLineColor;
     }
     
-    previousView = [self.titleButtonArray lastObject];
     [previousView mas_updateConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(self.titleScrollContentView.mas_right);
+        make.right.equalTo(self.titleScrollContentView);
     }];
+    
+    previousView = self.currentIndex < self.titleButtonArray.count ? self.titleButtonArray[self.currentIndex] : nil;
+    if (previousView) {
+        [self.bottomLine mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.width.equalTo(previousView);
+            make.centerX.equalTo(previousView);
+            make.bottom.equalTo(self.titleScrollContentView.mas_bottom);
+            make.height.equalTo(@2);
+        }];
+    }
 }
 
 - (void)updateTitleScrollContentViewLayout
 {
+    if (!self.titleButtonArray.count) 
+        return;
+
     CGFloat width = 0;
     for (UIButton *btn in self.titleButtonArray) {
         width += btn.intrinsicContentSize.width;
     }
     
-    UIView *previousView = [self.titleButtonArray lastObject];
+    UIView *previousView = nil;
+    
+    NSInteger count = self.titleButtonArray.count;
+    __weak typeof(self) weakSelf = self;
     
     //如果titles的总宽度小于父视图的宽度，那么等分title视图的宽度
-    if (width < self.superview.superview.frame.size.width - self.rightMargin) {
+    if (width < self.bounds.size.width) {
+        width = self.bounds.size.width;
         
-        width = self.superview.superview.frame.size.width - self.rightMargin;
-        
-        CGSize size      = CGSizeZero;
-        CGFloat sepWidth = width / (CGFloat)self.titleButtonArray.count;
-        
-        __weak typeof(self) weakSelf = self;
         for (UIButton *btn in self.titleButtonArray) {
             
-            size       = btn.intrinsicContentSize;
-            size.width = sepWidth;
+            CGSize contentSize = btn.intrinsicContentSize;
+            contentSize.width = width / (CGFloat)count;
             
             [btn mas_updateConstraints:^(MASConstraintMaker *make) {
-                make.size.mas_equalTo(size);
+                make.size.mas_equalTo(contentSize);
             }];
             
             previousView = btn;
         }
         
         previousView = self.titleButtonArray[0];
-        
         [weakSelf.bottomLine mas_updateConstraints:^(MASConstraintMaker *make) {
-            make.size.mas_equalTo(CGSizeMake(sepWidth, 2));
+            make.width.equalTo(previousView);
         }];
     }
 }
 
-- (void)updateTitleIndex
+- (void)updateTitleIndex:(BOOL)animation
 {
-    if (self.updateIndex >= self.titleButtonArray.count)
+    if (self.currentIndex >= self.titleButtonArray.count)
         return;
     
-    GLButton *button = self.titleButtonArray[self.updateIndex];
-    [self updateTitleScrollViewContentOffsetWithButton:button];
+    GLButton *button = self.titleButtonArray[self.currentIndex];
+    [self updateTitleScrollViewContentOffsetWithButton:button isAnimation:animation];
     
     CGRect frame = [self.titleScrollContentView convertRect:button.frame toView:self.superview];
     
@@ -158,16 +178,17 @@
         CGPoint contentOffset = self.contentOffset;
         contentOffset.x += frame.origin.x - self.frame.size.width / 2. + button.frame.size.width / 2.;
         
+        if (contentOffset.x > self.contentSize.width - self.frame.size.width)
+            contentOffset.x = self.contentSize.width - self.frame.size.width;
+        
         if (contentOffset.x < 0)
             contentOffset.x = 0;
-        else if (contentOffset.x > self.contentSize.width - self.frame.size.width)
-            contentOffset.x = self.contentSize.width - self.frame.size.width;
         
         [self setContentOffset:contentOffset animated:YES];
     }
 }
 
-- (void)updateTitleScrollViewContentOffsetWithButton:(GLButton *)button
+- (void)updateTitleScrollViewContentOffsetWithButton:(GLButton *)button isAnimation:(BOOL)animation
 {
     [self.titleButtonArray enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         GLButton *btn = obj;
@@ -180,6 +201,9 @@
         make.bottom.equalTo(self.titleScrollContentView.mas_bottom);
         make.height.equalTo(@2);
     }];
+    
+    if (!animation)
+        return;
     
     [UIView animateWithDuration:.2 delay:0 options:UIViewAnimationOptionCurveLinear animations:^{
         [self layoutIfNeeded];
@@ -194,16 +218,24 @@
     if (self.tapBlock) 
         self.tapBlock(index);
     
-    self.updateIndex = index;
+    self.currentIndex = index;
+    [self updateTitleIndex:YES];
 }
 
 #pragma mark - Set
 
 - (void)setUpdateIndex:(NSUInteger)updateIndex
 {
-    _updateIndex = updateIndex;
+    self.currentIndex = updateIndex;
+    [self updateTitleIndex:NO];
+}
+
+- (void)setScrollTitleArray:(NSArray *)scrollTitleArray
+{
+    _scrollTitleArray = nil;
+    _scrollTitleArray = scrollTitleArray;
     
-    [self updateTitleIndex];
+    [self updateTitles];
 }
 
 #pragma mark - Get
@@ -237,6 +269,7 @@
 {
     if (!_titleBottomLine) {
         _titleBottomLine = [UIView new];
+        _titleBottomLine.backgroundColor = [UIColor clearColor];
     }
     return _titleBottomLine;
 }

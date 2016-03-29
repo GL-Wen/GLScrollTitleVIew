@@ -22,15 +22,16 @@ typedef void(^titleButtonTapIndexBlcok)(NSUInteger index);
 
 @property (nonatomic, strong) UIView *titleBottomLine;//
 
+@property (nonatomic, strong) UIColor *titleNormalColor;
+@property (nonatomic, strong) UIColor *titleHightColor;
+@property (nonatomic, strong) UIColor *sepLineColor;
+
+@property (nonatomic, strong) UIFont *titleFont;
+
 @property (nonatomic, copy) titleButtonTapIndexBlcok tapBlock;
 
 @property (nonatomic, assign) NSUInteger updateIndex;
 
 @property (nonatomic, assign) CGFloat rightMargin;
-
-- (instancetype)initWithTitleArray:(NSArray *)titleArray;
-
-//更新标题
-- (void)updateTitles;
 
 @end

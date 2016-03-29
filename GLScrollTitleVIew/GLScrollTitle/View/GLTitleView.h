@@ -12,6 +12,8 @@
 @protocol GLTitleViewDelegate <NSObject>
 @optional
 
+- (UIView *)titleView:(GLTitleView *)titleView cellContentViewForItemAtIndexPath:(NSIndexPath *)indexPath;
+
 //兼容返回viewController
 - (id)titleView:(GLTitleView *)titleView cellContentForItemAtIndexPath:(NSIndexPath *)indexPath;
 
@@ -59,13 +61,12 @@
  *
  *  初始化titleView视图
  *
- *  @param titleArray title集合
  *  @param height     title视图高度
  *
  *  @return titleView视图对象
  *
  *  @since 1.0
  */
-- (instancetype)initWithTitleArray:(NSArray *)titleArray titleHeight:(CGFloat)height;
+- (instancetype)initWithTitleHeight:(CGFloat)height;
 
 @end

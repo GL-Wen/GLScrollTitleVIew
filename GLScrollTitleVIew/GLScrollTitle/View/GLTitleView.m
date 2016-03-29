@@ -36,20 +36,29 @@ UIScrollViewDelegate
 
 #pragma mark - Super
 
-- (instancetype)initWithTitleArray:(NSArray *)titleArray titleHeight:(CGFloat)height
+- (instancetype)initWithTitleHeight:(CGFloat)height
 {
     if (self = [super init]) {
         
-        self.titleNormalColor = [UIColor grayColor];
-        self.titleHightColor  = [UIColor redColor];
-        self.bottomLineColor  = [UIColor redColor];
-        self.titleFont        = [UIFont systemFontOfSize:15];
+        __weak typeof(self) weakSelf = self;
+        self.titleScrollView.tapBlock = ^(NSUInteger index) {
+            weakSelf.currentIndex = index;
+        };
         
-        self.currentIndex      = 0;
+        [self addSubview:self.titleScrollView];
+        [self addSubview:self.collectionView];
+        
+        [self.titleScrollView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.height.equalTo(@(height));
+            make.left.top.right.equalTo(weakSelf);
+        }];
+        
+        [self.collectionView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.edges.equalTo(weakSelf).insets(UIEdgeInsetsMake(height, 0, 0, 0));
+        }];
+        
         self.titleHeight       = height;
         self.isAutoSwitchTitle = YES;
-        
-        self.titleArray = titleArray;
     }
     return self;
 }
@@ -144,75 +153,21 @@ UIScrollViewDelegate
     self.collectionViewFlowLayout.itemSize = itemSize;
 }
 
-- (void)updateSepLineColor
-{
-    NSInteger count = self.titleScrollView.titleButtonArray.count;
-    for (NSInteger i = 0; i < count; i ++) {
-        GLButton *button = self.titleScrollView.titleButtonArray[i];
-        
-        if (i != count - 1) 
-            button.sepLine.backgroundColor = self.sepLineColor;
-    }
-}
-
-- (void)updateScrollTitleColor
-{
-    NSInteger count = self.titleScrollView.titleButtonArray.count;
-    for (NSInteger i = 0; i < count; i ++) {
-        GLButton *button        = self.titleScrollView.titleButtonArray[i];
-        button.titleNormalColor = self.titleNormalColor;
-        button.titleHightColor  = self.titleHightColor;
-        button.isHight          = self.currentIndex == i;
-    }
-}
-
-- (void)updateScrollTitleFont
-{
-    NSInteger count = self.titleScrollView.titleButtonArray.count;
-    for (NSInteger i = 0; i < count; i ++) {
-        GLButton *button        = self.titleScrollView.titleButtonArray[i];
-        button.titleLabel.font  = self.titleFont;
-    }
-}
-
 - (void)loadCustomView
 {
+    if (_customView.superview)
+        [_customView removeFromSuperview];
+    
     [self addSubview:_customView];
     
     [self.customView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.mas_top);
         make.right.equalTo(self.mas_right);
     }];
-}
-
-- (void)updateScrollTitleView
-{
-    __weak typeof(self) weakSelf = self;
     
-    _titleScrollView = [[GLTitleScrollView alloc] initWithTitleArray:self.titleArray];
-    _titleScrollView.backgroundColor                 = [UIColor whiteColor];
-    _titleScrollView.titleBottomLine.backgroundColor = self.titleBottomLineColor;
-    _titleScrollView.bottomLine.backgroundColor      = self.bottomLineColor;
-    _titleScrollView.tapBlock = ^(NSUInteger index) {
-        weakSelf.currentIndex = index;
-    };
-    
-    [self updateScrollTitleColor];
-    [self updateScrollTitleFont];
-    
-    [self addSubview:self.titleScrollView];
-    [self addSubview:self.collectionView];
-    
-    CGFloat rightMargin = self.customView.intrinsicContentSize.width;
-    
-    [self.titleScrollView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.height.equalTo(@(self.titleHeight));
-        make.top.left.equalTo(self);
+    CGFloat rightMargin = self.customView.bounds.size.width;
+    [self.titleScrollView mas_updateConstraints:^(MASConstraintMaker *make) {
         make.right.equalTo(self).with.offset(-rightMargin);
-    }];
-    
-    [self.collectionView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.equalTo(self).insets(UIEdgeInsetsMake(self.titleHeight, 0, 0, 0));
     }];
 }
 
@@ -220,48 +175,35 @@ UIScrollViewDelegate
 
 - (void)setSepLineColor:(UIColor *)sepLineColor
 {
-    _sepLineColor = nil;
-    _sepLineColor = sepLineColor;
-    
-    [self updateSepLineColor];
+    self.titleScrollView.sepLineColor = sepLineColor;
 }
 
 - (void)setTitleNormalColor:(UIColor *)titleNormalColor
 {
-    _titleNormalColor = nil;
-    _titleNormalColor = titleNormalColor;
-    
-    [self updateScrollTitleColor];
+    self.titleScrollView.titleNormalColor = titleNormalColor;
 }
 
 - (void)setTitleHightColor:(UIColor *)titleHightColor
 {
-    _titleHightColor = nil;
-    _titleHightColor = titleHightColor;
-    
-    [self updateScrollTitleColor];
+    self.titleScrollView.titleHightColor = titleHightColor;
 }
 
 - (void)setCurrentIndex:(NSUInteger)currentIndex
 {
     _currentIndex = currentIndex;
     [self updateCurrentIndex:currentIndex];
+    
+    self.titleScrollView.updateIndex = currentIndex;
 }
 
 - (void)setBottomLineColor:(UIColor *)bottomLineColor
 {
-    _bottomLineColor = nil;
-    _bottomLineColor = bottomLineColor;
-    
-    self.titleScrollView.bottomLine.backgroundColor = _bottomLineColor;
+    self.titleScrollView.bottomLine.backgroundColor = bottomLineColor;
 }
 
 - (void)setTitleFont:(UIFont *)titleFont
 {
-    _titleFont = nil;
-    _titleFont = titleFont;
-    
-    [self updateScrollTitleFont];
+    self.titleScrollView.titleFont = titleFont;
 }
 
 - (void)setCustomView:(UIView *)customView
@@ -276,10 +218,16 @@ UIScrollViewDelegate
 
 - (void)setTitleArray:(NSArray *)titleArray
 {
-    _titleArray = nil;
-    _titleArray = titleArray;
+    if (!titleArray.count)
+        return;
     
-    [self updateScrollTitleView];
+    self.titleScrollView.scrollTitleArray = titleArray;
+    
+    [self setNeedsUpdateConstraints];
+    [self updateConstraintsIfNeeded];
+    
+    self.contentViewMutableDictionary = [NSMutableDictionary dictionary];
+    [self.collectionView reloadData];
 }
 
 - (void)setTitleBottomLineColor:(UIColor *)titleBottomLineColor
@@ -298,6 +246,14 @@ UIScrollViewDelegate
 }
 
 #pragma mark - Get
+
+- (GLTitleScrollView *)titleScrollView
+{
+    if (!_titleScrollView) {
+        _titleScrollView = [GLTitleScrollView new];
+    }
+    return _titleScrollView;
+}
 
 - (UICollectionViewLayout *)collectionViewFlowLayout
 {
@@ -325,7 +281,7 @@ UIScrollViewDelegate
         _collectionView.backgroundColor = [UIColor whiteColor];
         [_collectionView registerClass:[GLCollectionViewCell class] forCellWithReuseIdentifier:[NSString stringWithFormat:collectionCellIdentify]];
         //不需要显示滚动条
-        _collectionView.showsVerticalScrollIndicator = NO;
+        _collectionView.showsVerticalScrollIndicator   = NO;
         _collectionView.showsHorizontalScrollIndicator = NO;
     }
     return _collectionView;

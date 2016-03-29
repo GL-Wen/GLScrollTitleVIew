@@ -16,6 +16,8 @@
 GLTitleViewDelegate
 >
 
+@property (nonatomic, strong) GLTitleView *titleView;
+
 @end
 
 @implementation ViewController
@@ -28,14 +30,30 @@ GLTitleViewDelegate
     
     self.edgesForExtendedLayout = UIRectEdgeNone;
     
-    GLTitleView *titleView = [[GLTitleView alloc] initWithTitleArray:@[@"菜单1", @"菜单2"] titleHeight:39];
-    titleView.sepLineColor = [UIColor lightGrayColor];
+    UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [btn setBackgroundColor:[UIColor redColor]];
+    [btn setFrame:CGRectMake(0, 0, 39, 39)];
+    
+    GLTitleView *titleView = [[GLTitleView alloc] initWithTitleHeight:39];
     titleView.delegate     = self;
+    titleView.titleBottomLineColor = [UIColor redColor];
+    titleView.customView = btn;
     [self.view addSubview:titleView];
     
+    self.titleView = titleView;
+    
     [titleView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.equalTo(self.view).insets(UIEdgeInsetsZero);
+        make.edges.equalTo(self.view).with.insets(UIEdgeInsetsZero);
     }];
+    
+    
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    [button setTitle:@"添加" forState:UIControlStateNormal];
+    [button setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+    [button sizeToFit];
+    [button addTarget:self action:@selector(addBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:button];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -74,6 +92,14 @@ GLTitleViewDelegate
 - (void)titleView:(GLTitleView *)titleView scrollToContent:(id)content indexPath:(NSIndexPath *)indexPath
 {
 //    NSLog(@"====content -->%@,\nindexPath -->%@",content,indexPath);
+}
+
+#pragma mark - Action
+
+- (void)addBtnClick:(UIButton *)button
+{
+    self.titleView.titleArray   = @[@"菜单1", @"菜单2", @"菜单3", @"菜单4", @"菜单4", @"菜单4", @"菜单4", @"菜单4"];
+    self.titleView.currentIndex = 0;
 }
 
 @end

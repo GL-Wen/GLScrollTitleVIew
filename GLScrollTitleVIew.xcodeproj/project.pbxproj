@@ -551,6 +551,10 @@
 			baseConfigurationReference = F7705C194A27371081A2EF74 /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/GLScrollTitleVIew/GLScrollTitle/View",
+				);
 				GCC_PREFIX_HEADER = GLScrollTitleView/GLScrollTitleView.pch;
 				INFOPLIST_FILE = GLScrollTitleVIew/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -564,6 +568,10 @@
 			baseConfigurationReference = 1E85177CAF358D7DFF9C92F3 /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/GLScrollTitleVIew/GLScrollTitle/View",
+				);
 				GCC_PREFIX_HEADER = GLScrollTitleView/GLScrollTitleView.pch;
 				INFOPLIST_FILE = GLScrollTitleVIew/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
