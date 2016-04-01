@@ -24,6 +24,8 @@ UIScrollViewDelegate
 @property (nonatomic, strong) GLTitleScrollView *titleScrollView;
 @property (nonatomic, strong) GLCollectionView  *collectionView;
 
+@property (nonatomic, strong) UIView *bottomLine;
+
 @property (nonatomic, strong) UICollectionViewFlowLayout *collectionViewFlowLayout;
 
 @property (nonatomic, strong) NSMutableDictionary *contentViewMutableDictionary;
@@ -47,10 +49,17 @@ UIScrollViewDelegate
         
         [self addSubview:self.titleScrollView];
         [self addSubview:self.collectionView];
+        [self addSubview:self.bottomLine];
         
         [self.titleScrollView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.height.equalTo(@(height));
             make.left.top.right.equalTo(weakSelf);
+        }];
+        
+        [self.bottomLine mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.right.equalTo(weakSelf);
+            make.height.equalTo(@1);
+            make.top.equalTo(weakSelf).offset(height - 1);
         }];
         
         [self.collectionView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -155,14 +164,11 @@ UIScrollViewDelegate
 
 - (void)loadCustomView
 {
-    if (_customView.superview)
-        [_customView removeFromSuperview];
-    
     [self addSubview:_customView];
     
     [self.customView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.mas_top);
-        make.right.equalTo(self.mas_right);
+        make.right.equalTo(self);
+        make.centerY.equalTo(self.titleScrollView);
     }];
     
     CGFloat rightMargin = self.customView.bounds.size.width;
@@ -198,7 +204,7 @@ UIScrollViewDelegate
 
 - (void)setBottomLineColor:(UIColor *)bottomLineColor
 {
-    self.titleScrollView.bottomLine.backgroundColor = bottomLineColor;
+    self.bottomLine.backgroundColor = bottomLineColor;
 }
 
 - (void)setTitleFont:(UIFont *)titleFont
@@ -208,10 +214,11 @@ UIScrollViewDelegate
 
 - (void)setCustomView:(UIView *)customView
 {
+    if (_customView.superview)
+        [_customView removeFromSuperview];
+    
     _customView = nil;
     _customView = customView;
-    
-    self.titleScrollView.rightMargin = customView.frame.size.width;
     
     [self loadCustomView];
 }
@@ -246,6 +253,15 @@ UIScrollViewDelegate
 }
 
 #pragma mark - Get
+
+- (UIView *)bottomLine
+{
+    if (!_bottomLine) {
+        _bottomLine = [UIView new];
+        _bottomLine.backgroundColor = [UIColor clearColor];
+    }
+    return _bottomLine;
+}
 
 - (GLTitleScrollView *)titleScrollView
 {

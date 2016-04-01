@@ -18,9 +18,7 @@ typedef void(^titleButtonTapIndexBlcok)(NSUInteger index);
 //标题视图容器
 @property (nonatomic, strong) NSMutableArray *titleButtonArray;
 
-@property (nonatomic, strong) UIView *bottomLine;//底部分割线
-
-@property (nonatomic, strong) UIView *titleBottomLine;//
+@property (nonatomic, strong) UIView *titleBottomLine;
 
 @property (nonatomic, strong) UIColor *titleNormalColor;
 @property (nonatomic, strong) UIColor *titleHightColor;
@@ -31,7 +29,5 @@ typedef void(^titleButtonTapIndexBlcok)(NSUInteger index);
 @property (nonatomic, copy) titleButtonTapIndexBlcok tapBlock;
 
 @property (nonatomic, assign) NSUInteger updateIndex;
-
-@property (nonatomic, assign) CGFloat rightMargin;
 
 @end

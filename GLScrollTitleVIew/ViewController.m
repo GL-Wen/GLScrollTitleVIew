@@ -30,14 +30,14 @@ GLTitleViewDelegate
     
     self.edgesForExtendedLayout = UIRectEdgeNone;
     
-    UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
-    [btn setBackgroundColor:[UIColor redColor]];
-    [btn setFrame:CGRectMake(0, 0, 39, 39)];
+    UIView *customView = [UIButton buttonWithType:UIButtonTypeCustom];
+    [customView setBackgroundColor:[UIColor redColor]];
+    [customView setBounds:CGRectMake(0, 0, 39, 39)];
     
     GLTitleView *titleView = [[GLTitleView alloc] initWithTitleHeight:39];
-    titleView.delegate     = self;
-    titleView.titleBottomLineColor = [UIColor redColor];
-    titleView.customView = btn;
+    titleView.delegate             = self;
+    titleView.bottomLineColor      = [UIColor lightGrayColor];
+    titleView.customView           = customView;
     [self.view addSubview:titleView];
     
     self.titleView = titleView;
@@ -83,6 +83,12 @@ GLTitleViewDelegate
             break;
             
         default:
+        {
+            UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+            GLListTableViewController *vc = [storyBoard instantiateViewControllerWithIdentifier:@"listVc"];
+            
+            content = vc;
+        }
             break;
     }
     
@@ -91,15 +97,14 @@ GLTitleViewDelegate
 
 - (void)titleView:(GLTitleView *)titleView scrollToContent:(id)content indexPath:(NSIndexPath *)indexPath
 {
-//    NSLog(@"====content -->%@,\nindexPath -->%@",content,indexPath);
+    NSLog(@"====content -->%@,\nindexPath -->%@",content,indexPath);
 }
 
 #pragma mark - Action
 
 - (void)addBtnClick:(UIButton *)button
 {
-    self.titleView.titleArray   = @[@"菜单1", @"菜单2", @"菜单3", @"菜单4", @"菜单4", @"菜单4", @"菜单4", @"菜单4"];
-    self.titleView.currentIndex = 0;
+    self.titleView.titleArray   = @[@"菜单1", @"菜单2", @"菜单3", @"菜单4", @"菜单5", @"菜单6", @"菜单7", @"菜单8", @"菜单9", @"菜单10", @"菜单11", @"菜单12", @"菜单13"];
 }
 
 @end

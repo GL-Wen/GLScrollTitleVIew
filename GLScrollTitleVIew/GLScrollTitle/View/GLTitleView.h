@@ -27,7 +27,7 @@
 //分割线颜色（不为空默认显示标题之间分割线）
 @property (nonatomic, strong) UIColor *sepLineColor;
 
-//底部指示线背景色
+//底部横线背景色
 @property (nonatomic, strong) UIColor *bottomLineColor;
 
 //标题普通状态颜色
@@ -36,7 +36,7 @@
 //标题高亮状态颜色
 @property (nonatomic, strong) UIColor *titleHightColor;
 
-//菜单底部视图横线（默认透明，显示需要设置背景色）
+//菜单底部视图横线
 @property (nonatomic, strong) UIColor *titleBottomLineColor;
 
 //用户自定义view

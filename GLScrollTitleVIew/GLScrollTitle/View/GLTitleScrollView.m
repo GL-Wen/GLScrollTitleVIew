@@ -32,20 +32,13 @@
         self.titleHightColor  = [UIColor redColor];
         self.titleFont        = [UIFont systemFontOfSize:15];
         
-        [self addSubview:self.titleScrollContentView];
         [self.titleScrollContentView addSubview:self.titleBottomLine];
-        [self.titleScrollContentView addSubview:self.bottomLine];
+        [self addSubview:self.titleScrollContentView];
         
         __weak typeof(self) weakSelf = self;
         [weakSelf.titleScrollContentView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.edges.equalTo(weakSelf).insets(UIEdgeInsetsZero);
             make.height.equalTo(weakSelf);
-        }];
-        
-        [weakSelf.titleBottomLine mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.height.equalTo(@1);
-            make.bottom.equalTo(weakSelf.titleScrollContentView.mas_bottom);
-            make.left.right.equalTo(weakSelf.titleScrollContentView);
         }];
     }
     return self;
@@ -116,7 +109,7 @@
     
     previousView = self.currentIndex < self.titleButtonArray.count ? self.titleButtonArray[self.currentIndex] : nil;
     if (previousView) {
-        [self.bottomLine mas_remakeConstraints:^(MASConstraintMaker *make) {
+        [self.titleBottomLine mas_remakeConstraints:^(MASConstraintMaker *make) {
             make.width.equalTo(previousView);
             make.centerX.equalTo(previousView);
             make.bottom.equalTo(self.titleScrollContentView.mas_bottom);
@@ -157,7 +150,7 @@
         }
         
         previousView = self.titleButtonArray[0];
-        [weakSelf.bottomLine mas_updateConstraints:^(MASConstraintMaker *make) {
+        [weakSelf.titleBottomLine mas_updateConstraints:^(MASConstraintMaker *make) {
             make.width.equalTo(previousView);
         }];
     }
@@ -195,7 +188,7 @@
         btn.isHight = btn == button;
     }];
     
-    [self.bottomLine mas_remakeConstraints:^(MASConstraintMaker *make) {
+    [self.titleBottomLine mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.width.equalTo(button);
         make.centerX.equalTo(button);
         make.bottom.equalTo(self.titleScrollContentView.mas_bottom);
@@ -256,20 +249,11 @@
     return _titleScrollContentView;
 }
 
-- (UIView *)bottomLine
-{
-    if (!_bottomLine) {
-        _bottomLine = [UIView new];
-        _bottomLine.backgroundColor = [UIColor redColor];
-    }
-    return _bottomLine;
-}
-
 - (UIView *)titleBottomLine
 {
     if (!_titleBottomLine) {
         _titleBottomLine = [UIView new];
-        _titleBottomLine.backgroundColor = [UIColor clearColor];
+        _titleBottomLine.backgroundColor = [UIColor redColor];
     }
     return _titleBottomLine;
 }
